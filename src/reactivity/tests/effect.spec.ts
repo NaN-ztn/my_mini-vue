@@ -60,15 +60,16 @@ describe("effect", () => {
     // runner 重新变为响应式
     let dummy;
     const obj = reactive({ prop: 1 });
+    // 会触发 getter 收集依赖
     const runner = effect(() => {
       dummy = obj.prop;
     });
     obj.prop = 2;
     expect(dummy).toBe(2);
     stop(runner);
-    obj.prop = 3;
-    // ++指令同时使用的 track 和 trigger 会重新收集一次依赖
-    // obj.prop++;
+    // obj.prop = 3;
+    // ++指令会触发 getter 等同于再使用一次 track 会重新收集一次依赖
+    obj.prop++;
     expect(dummy).toBe(2);
 
     // stopped effect should still be manually callable
