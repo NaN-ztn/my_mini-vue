@@ -2,10 +2,15 @@ import { hasChanged, isObject } from "../shared";
 import { isTrack, track, trackEffect, triggerEffect } from "./effect";
 import { reactive } from "./reactive";
 
+// 传入单值
+// get set
+// proxy -> Object
+// {} -> value set get
 class RefImpl {
   private _value: any;
   public dep;
   private _rawValue: any;
+  public __v_isRef = true;
   constructor(value) {
     // 原始值用于进行对比
     this._rawValue = value;
@@ -27,9 +32,7 @@ class RefImpl {
     }
   }
 }
-export function ref(value) {
-  return new RefImpl(value);
-}
+
 function trackRefValue(ref) {
   // 避免 effect 没有调用 acativeEffect 为 undefined 的容错处理
   if (isTrack()) {
@@ -39,4 +42,16 @@ function trackRefValue(ref) {
 
 function convert(value) {
   return isObject(value) ? reactive(value) : value;
+}
+
+export function ref(value) {
+  return new RefImpl(value);
+}
+
+export function isRef(ref) {
+  return !!ref.__v_isRef;
+}
+
+export function unRef(ref) {
+  return isRef(ref) ? ref.value : ref;
 }
