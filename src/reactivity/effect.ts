@@ -51,12 +51,29 @@ function cleanupEffect(effect) {
 let targetMap = new Map();
 
 // 是否收集依赖
-function isTrack() {
+export function isTrack() {
   // // 避免没有调用 effect 时 acativeEffect 未初始化
   // if (!acativeEffect) return;
   // // 判断是否需要收集依赖，优化 ++ 时再调用一次 getter 的情况
   // if (!shouldTrack) return;
   return shouldTrack && acativeEffect !== undefined;
+}
+
+export function trackEffect(dep) {
+  // 已经在 dep 中
+  if (dep.has(acativeEffect)) return;
+  dep.add(acativeEffect);
+  acativeEffect.deps.push(dep);
+}
+
+export function triggerEffect(dep) {
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
+  }
 }
 
 // 依赖收集
@@ -75,23 +92,14 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  // 已经在 dep 中
-  if (dep.has(acativeEffect)) return;
-  dep.add(acativeEffect);
-  acativeEffect.deps.push(dep);
+  trackEffect(dep);
 }
 
 // 依赖触发
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
-  for (const effect of dep) {
-    if (effect.scheduler) {
-      effect.scheduler();
-    } else {
-      effect.run();
-    }
-  }
+  triggerEffect(dep);
 }
 
 // 创建响应式事件
