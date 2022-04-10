@@ -5,7 +5,7 @@ let acativeEffect;
 // 是否需要收集依赖
 let shouldTrack;
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   // 订阅当前事件的订阅器
   // 用 set 存储，同一个属性的订阅器只有一个不会有重复的
