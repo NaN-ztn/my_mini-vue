@@ -12,6 +12,17 @@ describe("effect", () => {
     user.age++;
     expect(nextAge).toBe(12);
   });
+  // it("cycle effect", () => {
+  //   const user = reactive({ age: 10 });
+  //   let nextAge;
+  //   effect(() => {
+  //     nextAge = user.age++;
+  //   });
+  //   console.log(user.age);
+  //   expect(nextAge).toBe(11);
+  //   user.age++;
+  //   expect(nextAge).toBe(12);
+  // });
   it("should return runner when call effect", () => {
     let foo = 10;
     const runner = effect(() => {
