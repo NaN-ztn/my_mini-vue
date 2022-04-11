@@ -9,7 +9,7 @@ function patch(vnode, container) {
   // 去处理组件
   // 判断是不是 element 类型
   // 区分 element 类型和 component
-  processElement(vnode, container);
+  // processElement(vnode, container);
   processComponent(vnode, container);
 }
 
