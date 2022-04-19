@@ -1,4 +1,4 @@
-import { extend } from "../shared";
+import { extend } from "../shared/index";
 
 // 依赖收集中的事件
 let acativeEffect;

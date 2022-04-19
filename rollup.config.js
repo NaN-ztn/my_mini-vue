@@ -6,11 +6,11 @@ export default {
     // cjs esm
     {
       format: "cjs",
-      file: "pkg.main",
+      file: pkg.main,
     },
     {
       format: "es",
-      file: "pkg.module",
+      file: pkg.module,
     },
   ],
   plugins: [typescript()],
