@@ -20,17 +20,22 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
 
-function mountComponent(vnode: any, container) {
-  const instance = createComponentInstance(vnode);
+// 挂载组件
+function mountComponent(initialVnode: any, container) {
+  const instance = createComponentInstance(initialVnode);
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, initialVnode, container);
 }
 
-function setupRenderEffect(instance, container) {
-  const subTree = instance.render();
+function setupRenderEffect(instance, initialVnode, container) {
+  const { proxy } = instance;
+  const subTree = instance.render.call(proxy);
   // vnode -> path
   // vnode -> element -> mountElement
   patch(subTree, container);
+  // element -> mount
+  // vnode 为组件节点时需要加上子树的 el，否则为 null
+  initialVnode.el = subTree.el;
 }
 function processElement(vnode: any, container: any) {
   mountElement(vnode, container);
@@ -38,7 +43,7 @@ function processElement(vnode: any, container: any) {
 
 // 创建元素(转换 dom 元素)
 function mountElement(vnode: any, container: any) {
-  const el = document.createElement(vnode.type);
+  const el = (vnode.el = document.createElement(vnode.type));
   // string array
   const { children } = vnode;
   if (typeof children === "string") {
