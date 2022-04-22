@@ -22,7 +22,15 @@ export const App = {
       // "hi," + this.msg
       // array
       // [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "mini-vue")]
-      [h("p", { class: "red" }, "hi"), h(Foo, { cnt: 1  })]
+      [h("p", { class: "red" }, "hi"), h(Foo, {
+        cnt: 1,
+        onAdd(A, B) {
+          console.log("onAdd", A + B)
+        },
+        onAddFoo(A, B) {
+          console.log("onAddFoo", A + B)
+        }
+      })]
     )
   },
   setup() {
