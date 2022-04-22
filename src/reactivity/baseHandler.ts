@@ -20,7 +20,7 @@ function createGetter(isReadonly = false, shallow = false) {
     if (shallow) {
       return res;
     }
-
+    // 没有在代理中对对象进行依赖收集
     if (isObject(res)) {
       return isReadonly ? readonly(res) : reactive(res);
     }
