@@ -1,6 +1,7 @@
 import { isObject, isOn } from "../shared/index";
 import { ShapeFlags } from "../shared/ShapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode, container) {
   // patch
@@ -13,12 +14,25 @@ function patch(vnode, container) {
   // element
   // 去处理组件
   // 判断是不是 element 类型
-  const { shapeFlag } = vnode;
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-    // STATEFUL_COMPONENT
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+
+  // Fragment -> 只渲染 child
+  const { type, shapeFlag } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    // 文本节点分支
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+        // STATEFUL_COMPONENT
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+      break;
   }
 }
 
@@ -43,6 +57,7 @@ function setupRenderEffect(instance, initialVnode, container) {
   // vnode 为组件节点时需要加上子树的 el，否则为 null
   initialVnode.el = subTree.el;
 }
+
 function processElement(vnode: any, container: any) {
   mountElement(vnode, container);
 }
@@ -77,4 +92,16 @@ function mountChildren(vnode: any, container: any) {
   vnode.children.forEach((v) => {
     patch(v, container);
   });
+}
+
+function processFragment(vnode: any, container: any) {
+  // 对插槽中虚拟节点进行处理
+  // 避免插槽外多嵌套 div
+  mountChildren(vnode, container);
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.append(textNode);
 }

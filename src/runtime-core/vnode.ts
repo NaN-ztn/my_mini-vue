@@ -1,4 +1,8 @@
 import { ShapeFlags } from "../shared/ShapeFlags";
+// 用 Symbol 对 Fragment 进行抽离
+export const Fragment = Symbol("Fragment");
+export const Text = Symbol("Text");
+
 export function createVNode(type, props?, children?) {
   const vnode = {
     type,
@@ -24,4 +28,9 @@ export function createVNode(type, props?, children?) {
 
 function getShapeFlag(type) {
   return typeof type === "string" ? ShapeFlags.ELEMENT : ShapeFlags.STATEFUL_COMPONENT;
+}
+
+// 文本节点
+export function createTextVNode(text: string) {
+  return createVNode(Text, {}, text);
 }
