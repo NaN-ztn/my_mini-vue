@@ -3,11 +3,11 @@ import { createRender } from "../runtime-core";
 import { isOn } from "../shared";
 
 function createElement(type) {
-  console.log("createElement----------------------------------------------------------------");
+  // console.log("createElement----------------------------------------------------------------");
   return document.createElement(type);
 }
 function patchProp(el, key, val) {
-  console.log("patchProp----------------------------------------------------------------");
+  // console.log("patchProp----------------------------------------------------------------");
   if (isOn(key)) {
     el.addEventListener(key.slice(2).toLowerCase(), val);
   } else {
@@ -15,7 +15,7 @@ function patchProp(el, key, val) {
   }
 }
 function insert(el, parent) {
-  console.log("insert----------------------------------------------------------------");
+  // console.log("insert----------------------------------------------------------------");
   parent.append(el);
 }
 

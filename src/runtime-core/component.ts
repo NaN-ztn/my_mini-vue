@@ -1,3 +1,4 @@
+import { proxyRefs } from "../reactivity";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
@@ -5,7 +6,7 @@ import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initSlots } from "./componentSlots";
 
 export function createComponentInstance(vnode, parent) {
-  console.log("createComponentInstance", parent);
+  // console.log("createComponentInstance", parent);
   const component = {
     vnode,
     type: vnode.type,
@@ -14,6 +15,8 @@ export function createComponentInstance(vnode, parent) {
     slots: {},
     provides: parent?.provides || {},
     parent,
+    subTree: {},
+    isMounted: false,
     emit: () => {},
   };
   component.emit = emit.bind(null, component) as any;
@@ -48,7 +51,8 @@ function handleSetupResult(instance, setupResult: any) {
   // function: render() 函数
   // Object: 注入到组件上下文
   if (typeof setupResult === "object") {
-    instance.setupState = setupResult;
+    // 对 ref 进行包裹
+    instance.setupState = proxyRefs(setupResult);
   }
   finishComponentSetup(instance);
 }
