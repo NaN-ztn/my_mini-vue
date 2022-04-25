@@ -6,9 +6,9 @@ import { Fragment, Text } from "./vnode";
 export function render(vnode, container) {
   // patch
   // 为了方便递归处理
-  patch(vnode, container);
+  patch(vnode, container, null);
 }
-function patch(vnode, container) {
+function patch(vnode, container, parentComponent) {
   // ShapeFlags 描述虚拟节点当前类型
   // vnode -> flag
   // element
@@ -19,7 +19,7 @@ function patch(vnode, container) {
   const { type, shapeFlag } = vnode;
   switch (type) {
     case Fragment:
-      processFragment(vnode, container);
+      processFragment(vnode, container, parentComponent);
       break;
     // 文本节点分支
     case Text:
@@ -27,22 +27,22 @@ function patch(vnode, container) {
       break;
     default:
       if (shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vnode, container);
+        processElement(vnode, container, parentComponent);
         // STATEFUL_COMPONENT
       } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-        processComponent(vnode, container);
+        processComponent(vnode, container, parentComponent);
       }
       break;
   }
 }
 
-function processComponent(vnode: any, container: any) {
-  mountComponent(vnode, container);
+function processComponent(vnode: any, container: any, parentComponent) {
+  mountComponent(vnode, container, parentComponent);
 }
 
 // 挂载组件
-function mountComponent(initialVnode: any, container) {
-  const instance = createComponentInstance(initialVnode);
+function mountComponent(initialVnode: any, container, parentComponent) {
+  const instance = createComponentInstance(initialVnode, parentComponent);
   setupComponent(instance);
   setupRenderEffect(instance, initialVnode, container);
 }
@@ -52,18 +52,18 @@ function setupRenderEffect(instance, initialVnode, container) {
   const subTree = instance.render.call(proxy);
   // vnode -> path
   // vnode -> element -> mountElement
-  patch(subTree, container);
+  patch(subTree, container, instance);
   // element -> mount
   // vnode 为组件节点时需要加上子树的 el，否则为 null
   initialVnode.el = subTree.el;
 }
 
-function processElement(vnode: any, container: any) {
-  mountElement(vnode, container);
+function processElement(vnode: any, container: any, parentComponent) {
+  mountElement(vnode, container, parentComponent);
 }
 
 // 创建元素(转换 dom 元素)
-function mountElement(vnode: any, container: any) {
+function mountElement(vnode: any, container: any, parentComponent) {
   const el = (vnode.el = document.createElement(vnode.type));
   // string array
   const { children, shapeFlag } = vnode;
@@ -83,21 +83,21 @@ function mountElement(vnode: any, container: any) {
     // array_children
   } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     // vnode
-    mountChildren(vnode, el);
+    mountChildren(vnode, el, parentComponent);
   }
   container.append(el);
 }
 // 抽离内容为 vnode 数组的情况
-function mountChildren(vnode: any, container: any) {
+function mountChildren(vnode: any, container: any, parentComponent) {
   vnode.children.forEach((v) => {
-    patch(v, container);
+    patch(v, container, parentComponent);
   });
 }
 
-function processFragment(vnode: any, container: any) {
+function processFragment(vnode: any, container: any, parentComponent) {
   // 对插槽中虚拟节点进行处理
   // 避免插槽外多嵌套 div
-  mountChildren(vnode, container);
+  mountChildren(vnode, container, parentComponent);
 }
 
 function processText(vnode: any, container: any) {
