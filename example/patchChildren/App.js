@@ -1,7 +1,7 @@
 import { h } from "../../lib/guide-mini-vue.esm.js";
 
 import ArrayToText from "./ArrayToText.js"
-// import ArrayToArray from "./ArrayToArray.js"
+import ArrayToArray from "./ArrayToArray.js"
 import TextToArray from "./TextToArray.js"
 import TextToText from "./TextToText.js"
 
@@ -20,11 +20,10 @@ export default {
         // 老的是 text 新的是 text
         // h(TextToText)
         // 老的是 text 新的是 array
-        h(TextToArray)
+        // h(TextToArray)
         // 老的是 array 新的是 array
         // 需要实现 diff 算法
-        // h(ArrayToArray)
-
+        h(ArrayToArray)
       ])
   }
 
