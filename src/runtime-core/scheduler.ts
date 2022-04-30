@@ -1,10 +1,11 @@
 const queue: any[] = [];
 
 let isFlushPending = false;
+const p = Promise.resolve();
 
 // 将逻辑放在微任务中执行
 export function nextTick(fn) {
-  return fn ? Promise.resolve().then(fn) : Promise.resolve();
+  return fn ? p.then(fn) : p;
 }
 
 export function queueJobs(job) {
@@ -19,6 +20,7 @@ function queueFlush() {
   isFlushPending = true;
   nextTick(flushJobs);
 }
+
 function flushJobs() {
   isFlushPending = false;
   let job;
