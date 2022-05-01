@@ -24,6 +24,10 @@ function parseChildren(context) {
       node = parseElement(context);
     }
   }
+
+  if (!node) {
+    node = parseText(context);
+  }
   nodes.push(node);
   return nodes;
 }
@@ -40,14 +44,11 @@ function parseInterpolation(context) {
 
   const rawContentLength = closeIndex - openDelimiter.length;
 
-  const rawContent = context.source.slice(0, rawContentLength);
+  const rawContent = parseTextData(context, rawContentLength);
   const content = rawContent.trim();
-
-  console.log("content", content);
 
   // context.source = context.source.slice(rawContentLength + closeDelimiter.length);
   advanceBy(context, rawContentLength + closeDelimiter.length);
-  console.log("context.source: " + context.source);
 
   return {
     type: NodeTypes.INTERPOLATION,
@@ -97,4 +98,23 @@ function parseTag(context: any, type: TagType) {
       tag,
     },
   };
+}
+function parseText(context: any): any {
+  // 1.获取content
+  const content = parseTextData(context, context.source.length);
+
+  // 2.推进
+  advanceBy(context, content.length);
+  console.log(context.source);
+
+  return {
+    type: NodeTypes.ELEMENT,
+    content: {
+      type: NodeTypes.TEXT,
+      content,
+    },
+  };
+}
+function parseTextData(context: any, length) {
+  return context.source.slice(0, length);
 }
