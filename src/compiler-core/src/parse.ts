@@ -1,4 +1,12 @@
 // 抽象语法树
+// 用有限状态机的思维去实现
+/* 
+  初始状态 -> 插值 -> }}到 end 状态 -> 初始状态
+          -> parseElement -> parseTag -> parseChildren -> 初始状态
+                                                       -> parseTag(end) -> end状态 -> 初始状态
+          -> 其他（text） -> 遇到 {{  <到 end 状态 -> 初始状态
+*/
+// 有限状态机可以实现正则表达式的等价
 
 import { NodeTypes } from "./ast";
 
