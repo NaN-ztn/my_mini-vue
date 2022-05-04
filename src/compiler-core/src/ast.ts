@@ -1,11 +1,11 @@
 import { CREATE_ELEMENT_VNODE } from "./runtimeHelpers";
 
 export const enum NodeTypes {
+  TEXT,
+  ROOT,
   INTERPOLATION,
   SIMPLE_EXPRESSION,
   ELEMENT,
-  TEXT,
-  ROOT,
   COMPOUND_EXPRESSION,
 }
 
