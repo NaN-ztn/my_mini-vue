@@ -27,3 +27,7 @@ export const toHandlerKey = (str: string) => {
 };
 
 export const EMPTY_OBJ = {};
+
+export const isString = (value) => {
+  return typeof value === "string";
+};

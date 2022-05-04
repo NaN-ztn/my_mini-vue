@@ -58,9 +58,15 @@ function handleSetupResult(instance, setupResult: any) {
 }
 
 function finishComponentSetup(instance: any) {
-  const component = instance.type;
-
-  instance.render = component.render;
+  const Component = instance.type;
+  // template
+  if (compiler && !Component.render) {
+    // render 函数优先级大于 template
+    if (Component.template) {
+      Component.render = compiler(Component.template);
+    }
+  }
+  instance.render = Component.render;
 }
 
 let currentInstance = null;
@@ -72,4 +78,10 @@ export function getCurrentInstance() {
 // 好处：便于在调用栈中进行调试
 export function setCurrentInstance(instance: any) {
   currentInstance = instance;
+}
+
+let compiler;
+
+export function registerRuntimeCompiler(_compiler) {
+  compiler = _compiler;
 }
