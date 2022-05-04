@@ -2,6 +2,7 @@ import { ShapeFlags } from "../shared/ShapeFlags";
 // 用 Symbol 对 Fragment 进行抽离
 export const Fragment = Symbol("Fragment");
 export const Text = Symbol("Text");
+export {createVNode as createElementVnode}
 
 export function createVNode(type, props?, children?) {
   const vnode = {

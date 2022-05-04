@@ -64,6 +64,7 @@ function finishComponentSetup(instance: any) {
     // render 函数优先级大于 template
     if (Component.template) {
       Component.render = compiler(Component.template);
+      console.log(Component.render);
     }
   }
   instance.render = Component.render;
