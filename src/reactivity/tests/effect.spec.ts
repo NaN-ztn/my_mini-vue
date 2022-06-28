@@ -1,8 +1,8 @@
-import { effect, stop } from "../effect";
-import { reactive } from "../reactive";
+import { effect, stop } from '../effect';
+import { reactive } from '../reactive';
 
-describe("effect", () => {
-  it("happy path", () => {
+describe('effect', () => {
+  it('happy path', () => {
     const user = reactive({ age: 10 });
     let nextAge;
     effect(() => {
@@ -23,18 +23,18 @@ describe("effect", () => {
   //   user.age++;
   //   expect(nextAge).toBe(12);
   // });
-  it("should return runner when call effect", () => {
+  it('should return runner when call effect', () => {
     let foo = 10;
     const runner = effect(() => {
       foo++;
-      return "foo";
+      return 'foo';
     });
     expect(foo).toBe(11);
     let r = runner();
     expect(foo).toBe(12);
-    expect(r).toBe("foo");
+    expect(r).toBe('foo');
   });
-  it("scheduler", () => {
+  it('scheduler', () => {
     // scheduler effect函数的一个配置项
     // 1. 通过 effect 的第二个参数给定一个 scheduler 的 fn
     // 2. effect 第一次执行时还会执行 fn
@@ -66,7 +66,7 @@ describe("effect", () => {
     // // should have run
     expect(dummy).toBe(2);
   });
-  it("stop", () => {
+  it('stop', () => {
     // stop 停止响应式
     // runner 重新变为响应式
     let dummy;
@@ -87,7 +87,7 @@ describe("effect", () => {
     runner();
     expect(dummy).toBe(3);
   });
-  it("onStop", () => {
+  it('onStop', () => {
     const obj = reactive({ foo: 1 });
     const onStop = jest.fn();
     let dummy;
@@ -99,8 +99,19 @@ describe("effect", () => {
         onStop,
       }
     );
-
     stop(runner);
     expect(onStop).toBeCalledTimes(1);
+  });
+  it('++ case', () => {
+    let dummy1, dummy2;
+    const counter = reactive({ num: 0 });
+    effect(() => (dummy1 = ++counter.num));
+    effect(() => (dummy2 = counter.num));
+
+    expect(dummy1).toBe(1);
+    expect(dummy2).toBe(1);
+    counter.num++;
+    expect(dummy1).toBe(3);
+    expect(dummy2).toBe(3);
   });
 });

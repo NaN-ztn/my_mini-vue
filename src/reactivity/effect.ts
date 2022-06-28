@@ -1,7 +1,9 @@
-import { extend } from "../shared/index";
+import { extend } from '../shared/index';
 
 // 依赖收集中的事件
-let acativeEffect;
+// TODO：effect 嵌套的情况下，使用栈结构获取 activeEffect
+// TODO：run方法执行前，需清空当前事件依赖集合中当前的事件，从而实现分支切换，对响应式的优化，这样会有新的问题：Set 数据结构在 for 循环下无限循环，可拷贝一份副本用于解决无限循环的问题
+let activeEffect;
 // 是否需要收集依赖
 let shouldTrack;
 
@@ -11,7 +13,7 @@ export class ReactiveEffect {
   // 用 set 存储，同一个属性的订阅器只有一个不会有重复的
   deps = [];
   // 是否激活(stop)
-  acative = true;
+  active = true;
   onStop?: () => void;
   public scheduler: Function | undefined;
   constructor(fn, scheduler?: Function) {
@@ -20,23 +22,24 @@ export class ReactiveEffect {
   }
   run() {
     // stop 时 shouldTrack 为 false
-    if (!this.acative) {
+    if (!this.active) {
       // 返回传入函数的返回值
       return this._fn();
     }
     shouldTrack = true;
-    acativeEffect = this;
+    activeEffect = this;
     const result = this._fn();
     shouldTrack = false;
+    activeEffect = undefined;
     return result;
   }
   stop() {
-    if (this.acative) {
+    if (this.active) {
       cleanupEffect(this);
       if (this.onStop) {
         this.onStop();
       }
-      this.acative = false;
+      this.active = false;
     }
   }
 }
@@ -56,22 +59,24 @@ export function isTrack() {
   // if (!acativeEffect) return;
   // // 判断是否需要收集依赖，优化 ++ 时再调用一次 getter 的情况
   // if (!shouldTrack) return;
-  return shouldTrack && acativeEffect !== undefined;
+  return shouldTrack && activeEffect !== undefined;
 }
 
 export function trackEffect(dep) {
   // 已经在 dep 中
-  if (dep.has(acativeEffect)) return;
-  dep.add(acativeEffect);
-  acativeEffect.deps.push(dep);
+  if (dep.has(activeEffect)) return;
+  dep.add(activeEffect);
+  activeEffect.deps.push(dep);
 }
 
 export function triggerEffect(dep) {
   for (const effect of dep) {
-    if (effect.scheduler) {
-      effect.scheduler();
-    } else {
-      effect.run();
+    if (effect !== activeEffect) {
+      if (effect.scheduler) {
+        effect.scheduler();
+      } else {
+        effect.run();
+      }
     }
   }
 }
