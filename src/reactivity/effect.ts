@@ -1,11 +1,11 @@
 import { extend } from '../shared/index';
 
 // 依赖收集中的事件
-// TODO：effect 嵌套的情况下，使用栈结构获取 activeEffect
+// TODO：effect 嵌套的情况下，使用栈结构获取 activeEffect(完成)
 // TODO：run方法执行前，需清空当前事件依赖集合中当前的事件，从而实现分支切换，对响应式的优化，这样会有新的问题：Set 数据结构在 for 循环下无限循环，可拷贝一份副本用于解决无限循环的问题
 let activeEffect;
-// 是否需要收集依赖
-let shouldTrack;
+// effect 嵌套栈
+let effectStack: ReactiveEffect[] = [];
 
 export class ReactiveEffect {
   private _fn: any;
@@ -26,11 +26,11 @@ export class ReactiveEffect {
       // 返回传入函数的返回值
       return this._fn();
     }
-    shouldTrack = true;
     activeEffect = this;
+    effectStack.push(this);
     const result = this._fn();
-    shouldTrack = false;
-    activeEffect = undefined;
+    effectStack.pop();
+    activeEffect = effectStack[effectStack.length - 1];
     return result;
   }
   stop() {
@@ -59,7 +59,8 @@ export function isTrack() {
   // if (!acativeEffect) return;
   // // 判断是否需要收集依赖，优化 ++ 时再调用一次 getter 的情况
   // if (!shouldTrack) return;
-  return shouldTrack && activeEffect !== undefined;
+  // v2: 用 activeEffect 变化来实现 ++ 时调用 getter 的情况
+  return activeEffect !== undefined;
 }
 
 export function trackEffect(dep) {
@@ -103,6 +104,9 @@ export function track(target, key) {
 // 依赖触发
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
+  if (!depsMap) {
+    return;
+  }
   let dep = depsMap.get(key);
   triggerEffect(dep);
 }

@@ -1,8 +1,9 @@
-import { computed } from "../computed";
-import { reactive } from "../reactive";
+import { computed } from '../computed';
+import { effect } from '../effect';
+import { reactive } from '../reactive';
 
-describe("computed", () => {
-  it("happy path", () => {
+describe('computed', () => {
+  it('happy path', () => {
     // ref
     // .value
     // 缓存
@@ -13,11 +14,11 @@ describe("computed", () => {
     const getter = computed(() => {
       return value.foo;
     });
-
-    expect(getter.value).toBe(1);
+    value.foo++;
+    expect(getter.value).toBe(2);
   });
 
-  it("should compute lazily", () => {
+  it('should compute lazily', () => {
     const value = reactive({
       foo: 1,
     });
@@ -48,5 +49,18 @@ describe("computed", () => {
     // should not compute again
     cValue.value;
     expect(getter).toHaveBeenCalledTimes(2);
+  });
+  it('mix effect with computed', () => {
+    console.log = jest.fn();
+    let obj = reactive({
+      foo: 1,
+      bar: 2,
+    });
+    const sumRef = computed(() => obj.foo + obj.bar);
+    effect(() => {
+      console.log(sumRef.value);
+    });
+    obj.foo++;
+    expect(console.log).toBeCalledTimes(2);
   });
 });
